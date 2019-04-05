@@ -21,7 +21,21 @@ from mlflow.utils.validation import _validate_batch_log_limits, _validate_batch_
 
 import logging
 
+
+class Singleton(type):
+
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
 class SqlAlchemyStore(AbstractStore):
+
+    __metaclass__ = Singleton
+
     """
     SQLAlchemy compliant backend store for tracking meta data for MLflow entities. Currently
     supported database types are ``mysql``, ``mssql``, ``sqlite``, and ``postgresql``. This store
