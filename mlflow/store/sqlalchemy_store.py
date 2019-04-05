@@ -19,6 +19,7 @@ from mlflow.utils.mlflow_tags import MLFLOW_PARENT_RUN_ID, MLFLOW_RUN_NAME
 from mlflow.utils.validation import _validate_batch_log_limits, _validate_batch_log_data,\
     _validate_run_id
 
+import logging
 
 class SqlAlchemyStore(AbstractStore):
     """
@@ -51,6 +52,7 @@ class SqlAlchemyStore(AbstractStore):
                                       store object, DBFS path, or shared NFS file system).
         """
         super(SqlAlchemyStore, self).__init__()
+        logging.warning("Creating new sql alchemy instance")
         self.db_uri = db_uri
         self.db_type = urllib.parse.urlparse(db_uri).scheme
         self.artifact_root_uri = default_artifact_root
@@ -81,7 +83,7 @@ class SqlAlchemyStore(AbstractStore):
         def make_managed_session():
             """Provide a transactional scope around a series of operations."""
             session = SessionMaker()
-            print("Creating new SQL session")
+            logging.warning("Creating new sql session")
             try:
                 yield session
                 session.commit()
@@ -92,6 +94,7 @@ class SqlAlchemyStore(AbstractStore):
                 session.rollback()
                 raise MlflowException(message=e, error_code=INTERNAL_ERROR)
             finally:
+                logging.warning("Closing sql session")
                 session.close()
 
         return make_managed_session
