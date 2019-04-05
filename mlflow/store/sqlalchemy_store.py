@@ -1,3 +1,4 @@
+
 import sqlalchemy
 import uuid
 from contextlib import contextmanager
@@ -53,7 +54,7 @@ class SqlAlchemyStore(AbstractStore):
         self.db_uri = db_uri
         self.db_type = urllib.parse.urlparse(db_uri).scheme
         self.artifact_root_uri = default_artifact_root
-        self.engine = sqlalchemy.create_engine(db_uri)
+        self.engine = sqlalchemy.create_engine(db_uri, pool_size=2)
         Base.metadata.create_all(self.engine)
         Base.metadata.bind = self.engine
         SessionMaker = sqlalchemy.orm.sessionmaker(bind=self.engine)
@@ -80,6 +81,7 @@ class SqlAlchemyStore(AbstractStore):
         def make_managed_session():
             """Provide a transactional scope around a series of operations."""
             session = SessionMaker()
+            print("Creating new SQL session")
             try:
                 yield session
                 session.commit()
