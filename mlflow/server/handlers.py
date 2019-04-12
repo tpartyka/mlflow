@@ -4,6 +4,7 @@ import os
 import re
 import six
 
+import logging
 from functools import wraps
 from flask import Response, request, send_file
 from querystring_parser import parser
@@ -28,12 +29,13 @@ _store = None
 def _get_store():
     from mlflow.server import BACKEND_STORE_URI_ENV_VAR, ARTIFACT_ROOT_ENV_VAR
     global _store
+    logging.warning("GETTNIG STORE!!!!!")
     if _store is None:
         store_dir = os.environ.get(BACKEND_STORE_URI_ENV_VAR, None)
         artifact_root = os.environ.get(ARTIFACT_ROOT_ENV_VAR, None)
         if _is_database_uri(store_dir):
             from mlflow.store.sqlalchemy_store import SqlAlchemyStore
-            return SqlAlchemyStore(store_dir, artifact_root)
+            _store = SqlAlchemyStore(store_dir, artifact_root)
         elif _is_local_uri(store_dir):
             from mlflow.store.file_store import FileStore
             _store = FileStore(store_dir, artifact_root)
